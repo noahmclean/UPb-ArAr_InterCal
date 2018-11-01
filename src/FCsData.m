@@ -1,4 +1,4 @@
-function [FCsAge, FCsAge_oneSigmaAbs, dFCsAge_d40K_K] = FCsData()
+function kappaFCs = FCsData()
 
 %% Compilation of Fish Canyon Sanidine 40Ar*/40K (= kappaFCs) measurements
 %  compile dnd convert reported data into mol/mol basis
@@ -134,7 +134,9 @@ Hb3grAge_oneSigmaAbsW40K = sqrt( (1/(lambdaEC_SandJ+lambdaTotal_SandJ*kappaHb3gr
                                   kappaHb3gr_oneSigmaAbsW40K^2 );
 
 % relate back to FCs via the R reported in Jourdan and Renne (2007)
-kappaHb3gr_oneSigmaAbsMeas = Hb3grAge*(lambdaTotal_SandJ*kappaHb3gr + lambdaEC_SandJ);
+%kappaHb3gr_oneSigmaAbsMeas = 7e6 * ... % 1s abs for Hb3gr age from Jourdan and Renne 
+%                                (lambdaTotal_SandJ*kappaHb3gr + lambdaEC_SandJ);
+% note: this uncertainty of 1.4e-5 does not match any reported in Renne et al. 2010.
 kappaFCs_Hb3gr = JandR(1,5)*kappaHb3gr; % kappa_FCs = kappa_Hb3gr * R_FCs/Hb3gr
 kappaFCs_HB3gr_oneSigmaAbs = sqrt(kappaHb3gr^2*JandR(1,6)^2 + ...
                                                JandR(1,5)^2*kappaHb3gr_oneSigmaAbsMeas^2);
@@ -143,10 +145,25 @@ kappaFCs_HB3gr_oneSigmaAbs = sqrt(kappaHb3gr^2*JandR(1,6)^2 + ...
 
 
 %% compile re-calculated data
-
+% data column 1: kappaFCs, measured or calibrated
+% data column 2: one sigma absolute uncertainties
 
 data(1,1) = Steven_kappaFCsOld; data(1,2) = Steven_kappaFCsOld_oneSigmaAbs;
-data(1,3) = HandH_kappaFCs; data(1,4) = HandH_kappaFCs_oneSigmaAbs;
+data(2,1) = HandH_kappaFCs; data(2,2) = HandH_kappaFCs_oneSigmaAbs;
 
+% I can't perfectly reproduce these calculations from the data given, so using values
+% in Renne et al. 2010
+data(3,:) = [1.665 0.023]*10^-3; % NL-25
+data(4,:) = [1.641 0.010]*10^-3; % HB3gr    (I get [1.638 0.010])
+data(5,:) = [1.639 0.008]*10^-3; % GHC-305
+data(6,:) = [1.641 0.009]*10^-3; % GA-1550
+
+kappaFCs = sum(data(:,1)./data(:,2).^2)/sum(1./data(:,2).^2);
+kappaFCs_oneSigmaAbs = sqrt(1/sum(1./data(:,2).^2));
+MSWD = 1/(size(data,1)-1)*sum( (data(:,1)-kappaFCs).^2./data(:,2).^2 );
+dKappaFCs_dr40K_K = -kappaFCs/r40K_K_Garner;
+
+% output vector:
+kappaFCs = [kappaFCs, kappaFCs_oneSigmaAbs, dKappaFCs_dr40K_K];
 
 end
