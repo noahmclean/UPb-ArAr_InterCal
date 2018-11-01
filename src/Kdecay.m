@@ -4,7 +4,13 @@ function K40decay = Kdecay()
 
 atomicWt_K = 39.0983; % current as of 2016 IUPAC (Meija et al., 2016)
 atomicWt_K_oneSigmaAbs = 0.00012/2; % standardized units used for standard atomic weights
-ratio_40K_K =  1.17e-4; % ENSDF, Audi et al., 1997
+
+% Garner 40K/K data (would make optimization internally consistent)
+%ratio_40K_K = 0.011672/100;
+%ratio_40K_K_oneSigmaAbs = 0.000041/2/100;
+
+% ENSDF, Audi et al., 1997 - used by Min et al. (2000)
+ratio_40K_K =  1.17e-4; 
 ratio_40K_K_oneSigmaAbs = (0.02e-4)/2;
 
 avogadrosNumber = 6.0221367e23; % mol^-1  
@@ -80,3 +86,5 @@ K40decay = [lambdaEC   lambdaEC_oneSigmaAbs ...
             lambdaBeta lambdaBeta_oneSigmaAbs ...
             rhoEC_Beta ...
             lambdaTotal lambdaTotal_oneSigmaAbs];
+        
+end

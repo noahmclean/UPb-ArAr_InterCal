@@ -19,5 +19,20 @@ kappaFCs = FCsData();
 
 
 %% Replicate Kwon (2002) approach as described in Renne et al. 2010 eqns 
+% x = [lambdaEC lambdaBeta kappaFCs R_i=1_to_n]
+% SX = KwonEtAl2002_OptFun(datePairs, x) is Renne et al. 2010 eqns 4 and 5
 
-x0 = [K40decay(1,3) kappaFCs(1) datePairs(:,3)'];
+deltaEruptionZircon = [90 77] * 1e3; % following Renne, following Simon et al
+x0 = [K40decay([1 3]) kappaFCs(1) datePairs(:,3)'];
+
+% do minimization problem
+options = optimset('TolFun', 1e-8, 'TolX', 1e-8', 'MaxIter', 1e6, 'MaxFunEvals', 1e6);
+
+[x,fval,exitflag,output] = fminsearch(@(x) ...
+ KwonPlusRenneTerms(x, datePairs, deltaEruptionZircon, K40decay, kappaFCs), x0, options);
+
+%% some interpretation
+
+intercalFCsAge = 1/(x(1)+x(2)) * ...
+                        log( (x(1)+x(2))/x(1) * x(3) + 1 );
+
